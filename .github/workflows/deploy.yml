@@ -14,17 +14,17 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 jobs:
-  terraform:
+  Terraform:
     runs-on: ubuntu-latest
     container:
       image: hashicorp/terraform:1.6
     steps:
       - uses: actions/checkout@v2
       - name: Terraform Init
-        run: terraform init -chdir=terraform 
+        run: terraform -chdir=terraform init
       - name: Terraform Validate
-        run: terraform validate -chdir=terraform/ 
+        run: terraform -chdir=terraform/ validate
       - name: Terraform Plan
-        run: terraform plan -out=plan.tfplan -chdir=terraform/
+        run: terraform -chdir=terraform/ plan -out=plan.tfplan
       - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false -refresh=false -chdir=terraform/
+        run: terraform -chdir=terraform/ apply -auto-approve -input=false -refresh=false

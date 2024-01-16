@@ -21,10 +21,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Terraform Init
-        run: terraform -chdir=terraform init
+        run: terraform init -chdir=terraform 
       - name: Terraform Validate
-        run: terraform -chdir=terraform/ validate
+        run: terraform validate -chdir=terraform/ 
       - name: Terraform Plan
-        run: terraform -chdir=terraform/ plan -out=plan.tfplan
+        run: terraform plan -out=plan.tfplan -chdir=terraform/
       - name: Terraform Apply
-        run: terraform -chdir=terraform/ apply -auto-approve -input=false -refresh=false
+        run: terraform apply -auto-approve -input=false -refresh=false -chdir=terraform/

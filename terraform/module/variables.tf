@@ -24,7 +24,7 @@ variable "vpc_id" {
 
 variable "id" {
   description = "(Optional) Unique identifier for naming resources"
-  default     = "metabase"
+  default     = "vpc-0d055938882fe565b"
 }
 
 variable "tags" {

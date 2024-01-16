@@ -18,7 +18,7 @@ resource "aws_rds_cluster" "this" {
 
   scaling_configuration {
     auto_pause   = var.auto_pause
-    min_capacity = 1
+    min_capacity = 2
     max_capacity = var.max_capacity
   }
 

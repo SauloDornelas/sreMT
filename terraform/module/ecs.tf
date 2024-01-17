@@ -37,6 +37,47 @@ resource "aws_ecs_service" "this" {
   }
 }
 
+
+resource "aws_appautoscaling_target" "ecs_target" {
+  min_capacity       = var.task_count.min
+  max_capacity       = var.task_count.max
+  resource_id        = "service/${var.id}/${var.id}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "memory_scalling_policy" {
+  name               = "${var.id}-memory-scalling"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+    }
+
+    target_value = 70
+  }
+}
+
+resource "aws_appautoscaling_policy" "cpu_scalling_policy" {
+  name               = "${var.id}-cpu-scalling"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value = 70
+  }
+}
+
 data "aws_region" "this" {}
 
 locals {
@@ -146,7 +187,7 @@ resource "aws_lb_target_group" "this" {
 
 resource "aws_lb_target_group_attachment" "test" {
   target_group_arn = aws_lb_target_group.this.arn
-  target_id        = aws_ecs_task_definition.this.arn
+  target_id        = aws_ecs_task_definition.this.id
   port             = local.container[0].portMappings[0].containerPort
 }
 

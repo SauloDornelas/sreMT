@@ -102,3 +102,16 @@ variable "auto_pause" {
   description = "(Optional) https://www.terraform.io/docs/providers/aws/r/rds_cluster.html#auto_pause"
   default     = false
 }
+
+variable "task_count" {
+  type = object({
+    min = number,
+    max = number,
+  })
+
+  default = {
+    max = 2
+    min = 1
+  }
+  description = "Configurações das tarefas"
+}

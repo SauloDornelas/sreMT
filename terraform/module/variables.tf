@@ -1,4 +1,4 @@
-variable "private_subnet_ids" {
+variable "public_subnet_ids_2" {
   description = "(Required) IDs of the subnets to which the services and database will be deployed"
 }
 
@@ -20,11 +20,12 @@ variable "certificate_arn" {
 
 variable "vpc_id" {
   description = "(Required) https://www.terraform.io/docs/providers/aws/r/security_group.html#vpc_id"
+  default     = true  
 }
 
 variable "id" {
   description = "(Optional) Unique identifier for naming resources"
-  default     = "vpc-0d055938882fe565b"
+  default     = "metabase"  
 }
 
 variable "tags" {
@@ -54,7 +55,7 @@ variable "max_capacity" {
 
 variable "desired_count" {
   description = "(Optional) https://www.terraform.io/docs/providers/aws/r/ecs_service.html#desired_count"
-  default     = "2"
+  default     = "1"
 }
 
 variable "log_retention" {

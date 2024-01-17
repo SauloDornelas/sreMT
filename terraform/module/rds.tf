@@ -1,5 +1,5 @@
 resource "aws_rds_cluster" "this" {
-  cluster_identifier_prefix       = "${var.id}"
+  cluster_identifier              = "${var.id}"
   final_snapshot_identifier       = "${var.id}-${formatdate("YYYYMMDDhhmmss", timestamp())}"
   copy_tags_to_snapshot           = true
   engine                          = "aurora-postgresql"
@@ -8,7 +8,6 @@ resource "aws_rds_cluster" "this" {
   master_username                 = "root"
   master_password                 = random_string.this.result
   backup_retention_period         = 5 # days
-  snapshot_identifier             = var.snapshot_identifier
   vpc_security_group_ids          = [aws_security_group.rds.id]
   db_subnet_group_name            = aws_db_subnet_group.this.id
   db_cluster_parameter_group_name = var.db_cluster_parameter_group_name
@@ -72,7 +71,7 @@ resource "aws_secretsmanager_secret_version" "this" {
 
 resource "aws_db_subnet_group" "this" {
   name_prefix = "${var.id}-"
-  subnet_ids  = tolist(var.private_subnet_ids)
+  subnet_ids  = tolist(var.public_subnet_ids_2)
   tags        = var.tags
 
   lifecycle {

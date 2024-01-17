@@ -1,11 +1,6 @@
 resource "aws_ecs_cluster" "this" {
   name               = var.id
   tags               = var.tags
-
-  setting {
-    name  = "containerInsights"
-    value = "disable"
-  }
 }
 
 resource "aws_ecs_task_definition" "this" {
@@ -27,7 +22,6 @@ resource "aws_ecs_service" "this" {
   launch_type                       = "FARGATE"
   propagate_tags                    = "SERVICE"
   health_check_grace_period_seconds = 30
-  depends_on                        = [aws_lb_listener_rule.this]
   tags                              = var.tags
 
   load_balancer {
@@ -38,7 +32,8 @@ resource "aws_ecs_service" "this" {
 
   network_configuration {
     security_groups = [aws_security_group.ecs.id]
-    subnets         = tolist(var.private_subnet_ids)
+    assign_public_ip = true
+    subnets         = tolist(var.public_subnet_ids_2)
   }
 }
 
@@ -84,7 +79,7 @@ locals {
     },
     {
       name  = "MB_DB_TYPE"
-      value = "postgresql"
+      value = "postgres"
     },
     {
       name  = "MB_DB_DBNAME"
@@ -139,7 +134,7 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 resource "aws_lb_target_group" "this" {
   name        = var.id
   port        = local.container[0].portMappings[0].containerPort
-  protocol    = "HTTP"
+  protocol    = "TCP"
   vpc_id      = var.vpc_id
   target_type = "ip"
   tags        = var.tags
@@ -149,31 +144,10 @@ resource "aws_lb_target_group" "this" {
   }
 }
 
-resource "aws_lb_listener_rule" "this" {
-  listener_arn = aws_lb_listener.https.arn
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.this.arn
-  }
-
-  condition {
-    host_header {
-      values = [var.domain]
-    }
-  }
-}
-
-resource "aws_route53_record" "this" {
-  name    = var.domain
-  type    = "A"
-  zone_id = var.zone_id
-
-  alias {
-    name                   = aws_lb.this.dns_name
-    zone_id                = aws_lb.this.zone_id
-    evaluate_target_health = false
-  }
+resource "aws_lb_target_group_attachment" "test" {
+  target_group_arn = aws_lb_target_group.this.arn
+  target_id        = aws_ecs_task_definition.this.arn
+  port             = local.container[0].portMappings[0].containerPort
 }
 
 resource "aws_cloudwatch_log_group" "this" {

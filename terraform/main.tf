@@ -8,28 +8,30 @@ terraform {
 
 module "metabase" {
   source             = "./module"
-  public_subnet_ids  = ["${aws_subnet.a.id}","${aws_subnet.b.id}"]
-  private_subnet_ids = ["${aws_subnet.a.id}","${aws_subnet.b.id}"]
-  vpc_id             = aws_vpc.this.id
-  domain             = "metabase.sremt.com"
+  public_subnet_ids  = data.aws_subnets.a.ids
+  public_subnet_ids_2 = data.aws_subnets.b.ids
+  vpc_id             = data.aws_vpc.this.id
+  domain             = ""
   certificate_arn    = ""
-  zone_id            = "metabase"
+  zone_id            = ""
 }
 
-resource "aws_vpc" "this" {
-  cidr_block = "172.31.0.0/16"
+data "aws_vpc" "this" {
+  default = true
 }
 
-resource "aws_subnet" "a" {
-  vpc_id            = aws_vpc.this.id
-  cidr_block        = cidrsubnet("172.31.32.0/20", 4, 0)
-  availability_zone = "us-east-1a"
+data "aws_subnets" "a" {
+  filter {
+    name   = "tag:Name"    
+    values = ["subnet-us-east-*"]
+  }
 }
 
-resource "aws_subnet" "b" {
-  vpc_id            = aws_vpc.this.id
-  cidr_block        = cidrsubnet("172.31.0.0/20", 4, 1)
-  availability_zone = "us-east-1b"
+data "aws_subnets" "b" {
+  filter {
+    name   = "tag:Name"
+    values = ["subnet-us-east-*"]
+  }
 }
 
 provider "aws" {

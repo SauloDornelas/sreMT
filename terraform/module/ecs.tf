@@ -185,12 +185,6 @@ resource "aws_lb_target_group" "this" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "test" {
-  target_group_arn = aws_lb_target_group.this.arn
-  target_id        = aws_ecs_task_definition.this.id
-  port             = local.container[0].portMappings[0].containerPort
-}
-
 resource "aws_cloudwatch_log_group" "this" {
   name              = var.id
   retention_in_days = var.log_retention
